@@ -42,6 +42,7 @@ nav:
   - 'Magento 2 Extensions':
     - 'Overview':  'magento-extensions/index.md'
     - 'magento-extensions/admin-user-password-requirements.md'
+    - 'magento-extensions/aifieldgenerator.md'
   - 'Point Of Sale for Magento':
     - 'openpos/OpenPOS.md'
     - 'Late Registration': 'openpos/open-pos-late-registration.md'
