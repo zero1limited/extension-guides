@@ -1,8 +1,15 @@
 # AI Field Generators
 
-nbnhfnfnhfhnf 
-Experience seamless compliance with the upcoming PCI DSS requirements with ZERO-1's PCI Admin User Requirements, a Magento 2 extension designed to simplify the process for merchants.
+An AI Field Generator is a tool that automatically fills in fields on your website or system using artificial intelligence.
 
+Instead of a person typing things out manually (like product descriptions, titles, or attributes), the AI can generate them for you — quickly and consistently.
+
+For example:
+- If you add a new product, the AI can instantly suggest a title, description, and keywords.
+
+= If you have lots of forms or attributes to fill in (like colour, material, size), the AI can complete them based on patterns it’s learned.
+
+- It saves time, reduces human error, and keeps everything more consistent.
 
 
 ## Installation
