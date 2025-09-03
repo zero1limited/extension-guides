@@ -6,9 +6,7 @@ Instead of a person typing things out manually (like product descriptions, title
 
 For example:
 - If you add a new product, the AI can instantly suggest a title, description, and keywords.
-
 - If you have lots of forms or attributes to fill in (like colour, material, size), the AI can complete them based on patterns it’s learned.
-
 - It saves time, reduces human error, and keeps everything more consistent.
 
 
