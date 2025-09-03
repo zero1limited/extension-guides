@@ -23,8 +23,22 @@ Follow the standard [Magento extension installation guide for Composer](https://
 composer require zero1/aifieldgenerator
 ```
 
-
 ## Configuration
+
+In admin, go to:
+
+- Catolog
+- Zero-1 field generator
+- Configuration
+
+  In general Enable ai content generation
+
+ Then go to OpenAI API Configuration  and add you Chat GPT API key
+
+[Log into your chat GPT account and click on API keys](https://platform.openai.com/settings/organization/api-keys) 
+
+
+## Creating Directives
 
 It's key to understand when using AI to generate content, it's important you feed it with good content otherwise you fall victim to the 'shit in - shit out' scenario. A couple of tips
 
