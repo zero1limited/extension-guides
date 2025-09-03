@@ -31,7 +31,7 @@ In admin, go to:
 - Zero-1 field generator
 - Configuration
 
-  In general Enable ai content generation
+In general, Enable AI content generation
 
  Then go to OpenAI API Configuration  and add you Chat GPT API key
 
