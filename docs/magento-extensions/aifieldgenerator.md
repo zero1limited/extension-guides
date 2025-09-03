@@ -9,8 +9,13 @@ For example:
 - If you have lots of forms or attributes to fill in (like colour, material, size), the AI can complete them based on patterns it’s learned.
 - It saves time, reduces human error, and keeps everything more consistent.
 
+## Prerequisites
+
+Before you install this module please ensure you have a paid Chat GPT account in order to generate API keys.
+
 
 ## Installation
+
 Purchase the extension from https://extensions.zero1.co.uk/ai-field-generator.html
 
 Follow the standard [Magento extension installation guide for Composer](https://docs.zero1.co.uk/magento-extensions/) 
