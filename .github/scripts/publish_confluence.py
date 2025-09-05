@@ -1,4 +1,4 @@
-import os, glob, re, json
+import os, glob, re
 from atlassian import Confluence
 from markdown import markdown
 import yaml
@@ -10,36 +10,31 @@ SPACE = os.environ["CONFLUENCE_SPACE_KEY"]
 PARENT_ID = os.environ.get("CONFLUENCE_PARENT_ID", "").strip() or None
 MD_GLOB = os.environ.get("MD_GLOB", "docs/**/*.md")
 
-# --- Helpers ---------------------------------------------------------------
+# --- helpers ---------------------------------------------------------------
 
 def split_frontmatter(md_text):
-    """
-    Returns (frontmatter_dict, body_md).
-    Supports optional YAML frontmatter delimited by --- lines.
-    """
+    """Returns (frontmatter_dict, body_md) for optional YAML frontmatter."""
     if md_text.startswith("---"):
-        parts = md_text.split("\n", 2)
-        if len(parts) > 2:
-            # find closing '---'
-            m = re.search(r"\n---\s*\n", md_text[4:], re.M)
-            if m:
-                end = 4 + m.start()
-                front = md_text[4:end]
-                body = md_text[end+5:]  # skip closing '---\n'
+        # find closing '---' after the first line
+        m = re.search(r"^---\s*$", md_text.split("\n", 1)[1], re.M)
+    # simpler robust approach:
+    lines = md_text.splitlines(True)
+    if lines and lines[0].strip() == "---":
+        for i in range(1, len(lines)):
+            if lines[i].strip() == "---":
+                front = "".join(lines[1:i])
+                body = "".join(lines[i+1:])
                 data = yaml.safe_load(front) or {}
                 return (data, body)
     return ({}, md_text)
 
 def md_to_storage_html(md_text):
-    """
-    Convert GitHub-flavored Markdown to HTML suitable for Confluence 'storage' format.
-    For most content, standard HTML is accepted by Confluence's storage representation.
-    """
-    # Extensions can be expanded if you need tables/TOC/etc.
+    """Convert Markdown to HTML for Confluence storage representation."""
     return markdown(md_text, extensions=['tables', 'fenced_code'])
 
 def find_page_by_title(conf, space, title):
-    # Try helper
+    """Return a page dict if found, else None. Tries helper then CQL."""
+    # Try library helper
     try:
         page = conf.get_page_by_title(space=space, title=title)
         if page and page.get("id"):
@@ -47,12 +42,12 @@ def find_page_by_title(conf, space, title):
     except AttributeError:
         pass
 
-    # Fallback CQL
+    # Fallback to CQL (exact title match)
     cql = f'type=page and space="{space}" and title="{title}"'
     res = conf.cql(cql, limit=1, expand="content.version,content.body.storage,content.ancestors")
     results = (res or {}).get("results", [])
     if results:
-        content = results[0].get("content")
+        content = results[0].get("content", {})
         return {
             "id": content.get("id"),
             "title": content.get("title"),
@@ -62,8 +57,23 @@ def find_page_by_title(conf, space, title):
         }
     return None
 
-def create_or_update(conf, title, html_body, labels=None, ancestor_id=None, page_id=None):
-    labels = labels or []
+def preflight(conf, space_key, parent_id=None):
+    """Early, explicit checks so permission errors are clearer."""
+    space = conf.get_space(space_key)
+    if not space or not space.get('key'):
+        raise RuntimeError(
+            f"Confluence preflight: cannot access space '{space_key}'. "
+            "Check that the API user has a Confluence license and space permissions."
+        )
+    if parent_id:
+        page = conf.get_page_by_id(parent_id, expand='id,title,ancestors,space')
+        if not page or not page.get('id'):
+            raise RuntimeError(
+                f"Confluence preflight: parent page id '{parent_id}' not found or not visible to this user."
+            )
+
+def create_or_update(conf, title, html_body, ancestor_id=None, page_id=None):
+    """Create or update a page without labels."""
     if page_id:
         page = conf.get_page_by_id(page_id, expand='version,body.storage,ancestors')
         if not page:
@@ -74,11 +84,9 @@ def create_or_update(conf, title, html_body, labels=None, ancestor_id=None, page
             title=title,
             body=html_body,
             representation='storage',
-            parent_id=parent_for_update,
+            parent_id=parent_for_update,  # leave None if you don't want to move it
             minor_edit=True
         )
-        if labels:
-            conf.set_page_labels(page_id, labels)
         print(f"Updated page: {title} (id={page_id})")
         return page_id
     else:
@@ -94,8 +102,6 @@ def create_or_update(conf, title, html_body, labels=None, ancestor_id=None, page
                 parent_id=parent_for_update,
                 minor_edit=True
             )
-            if labels:
-                conf.set_page_labels(page_id, labels)
             print(f"Updated page: {title} (id={page_id})")
             return page_id
         else:
@@ -108,22 +114,16 @@ def create_or_update(conf, title, html_body, labels=None, ancestor_id=None, page
                 representation='storage'
             )
             page_id = created["id"]
-            if labels:
-                conf.set_page_labels(page_id, labels)
             print(f"Created page: {title} (id={page_id})")
             return page_id
 
-
-
-# --- Main ------------------------------------------------------------------
+# --- main ------------------------------------------------------------------
 
 def main():
-    conf = Confluence(
-        url=BASE_URL,
-        username=USER,
-        password=TOKEN,
-        cloud=True,
-    )
+    conf = Confluence(url=BASE_URL, username=USER, password=TOKEN, cloud=True)
+
+    # Optional but helpful
+    preflight(conf, SPACE, PARENT_ID)
 
     files = glob.glob(MD_GLOB, recursive=True)
     if not files:
@@ -136,29 +136,11 @@ def main():
 
         fm, body_md = split_frontmatter(raw)
         title = fm.get("title") or os.path.splitext(os.path.basename(path))[0].replace("-", " ").title()
-        labels = fm.get("labels") or []
-        page_id = fm.get("confluence_page_id")  # optional explicit id for guaranteed updates
+        page_id = fm.get("confluence_page_id")  # optional to force updating a specific page
         ancestor_id = fm.get("parent_id") or PARENT_ID
 
         html = md_to_storage_html(body_md)
-
-        # (Optional) simple cleanup: convert <pre><code class="language-xxx"> to {code:xxx}
-        # If you prefer Confluence macros for code blocks, uncomment below.
-        # html = re.sub(
-        #     r'<pre><code class="language-([^"]*)">(.*?)</code></pre>',
-        #     r'<ac:structured-macro ac:name="code"><ac:parameter ac:name="language">\1</ac:parameter><ac:plain-text-body><![CDATA[\2]]></ac:plain-text-body></ac:structured-macro>',
-        #     html,
-        #     flags=re.S
-        # )
-
-        create_or_update(
-            conf,
-            title=title,
-            html_body=html,
-            labels=labels,
-            ancestor_id=ancestor_id,
-            page_id=page_id
-        )
+        create_or_update(conf, title=title, html_body=html, ancestor_id=ancestor_id, page_id=page_id)
 
 if __name__ == "__main__":
     main()
