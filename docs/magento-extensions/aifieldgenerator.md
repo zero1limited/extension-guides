@@ -1,5 +1,5 @@
 ---
-title: "AI Field Generator"
+title: "AI Field Generator updated"
 labels: ["docs", "engineering"]
 xxxparent_id: "123456789"           # overrides default CONFLUENCE_PARENT_ID
 # xxxconfluence_page_id: "987654321"  # lock to a specific page for updates
