@@ -1,3 +1,10 @@
+---
+title: "API Guidelines"
+labels: ["docs", "engineering"]
+xxxparent_id: "123456789"           # overrides default CONFLUENCE_PARENT_ID
+# xxxconfluence_page_id: "987654321"  # lock to a specific page for updates
+---
+
 # AI Field Generators
 
 An AI Field Generator is a tool that automatically fills in fields on your website or system using artificial intelligence.
