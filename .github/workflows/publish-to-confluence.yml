@@ -2,7 +2,7 @@ name: Publish Markdown to Confluence
 
 on:
   push:
-    branches: [ main ]
+    branches: [ master ]
     paths:
       - "docs/**/*.md"   # adjust to your directory
 
