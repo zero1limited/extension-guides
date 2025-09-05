@@ -39,22 +39,42 @@ def md_to_storage_html(md_text):
     return markdown(md_text, extensions=['tables', 'fenced_code'])
 
 def find_page_by_title(conf, space, title):
-    results = conf.get_page_child_by_title(space=space, title=title)
-    return results  # None if not found
+    # Try helper
+    try:
+        page = conf.get_page_by_title(space=space, title=title)
+        if page and page.get("id"):
+            return page
+    except AttributeError:
+        pass
+
+    # Fallback CQL
+    cql = f'type=page and space="{space}" and title="{title}"'
+    res = conf.cql(cql, limit=1, expand="content.version,content.body.storage,content.ancestors")
+    results = (res or {}).get("results", [])
+    if results:
+        content = results[0].get("content")
+        return {
+            "id": content.get("id"),
+            "title": content.get("title"),
+            "version": content.get("version"),
+            "body": content.get("body"),
+            "ancestors": content.get("ancestors", []),
+        }
+    return None
 
 def create_or_update(conf, title, html_body, labels=None, ancestor_id=None, page_id=None):
     labels = labels or []
     if page_id:
-        # Update by explicit page_id
-        page = conf.get_page_by_id(page_id, expand='version,body.storage')
+        page = conf.get_page_by_id(page_id, expand='version,body.storage,ancestors')
         if not page:
             raise RuntimeError(f"Page id {page_id} not found.")
+        parent_for_update = ancestor_id or (page.get("ancestors")[-1]["id"] if page.get("ancestors") else None)
         conf.update_page(
             page_id=page_id,
             title=title,
             body=html_body,
             representation='storage',
-            parent_id=ancestor_id or page.get('ancestors', [{}])[-1].get('id'),
+            parent_id=parent_for_update,
             minor_edit=True
         )
         if labels:
@@ -62,16 +82,16 @@ def create_or_update(conf, title, html_body, labels=None, ancestor_id=None, page
         print(f"Updated page: {title} (id={page_id})")
         return page_id
     else:
-        # Try to find by title in space first so repeated runs are idempotent
         page = find_page_by_title(conf, SPACE, title)
         if page:
             page_id = page["id"]
+            parent_for_update = ancestor_id or (page.get("ancestors")[-1]["id"] if page.get("ancestors") else None)
             conf.update_page(
                 page_id=page_id,
                 title=title,
                 body=html_body,
                 representation='storage',
-                parent_id=ancestor_id or page.get('ancestors', [{}])[-1].get('id'),
+                parent_id=parent_for_update,
                 minor_edit=True
             )
             if labels:
@@ -79,18 +99,21 @@ def create_or_update(conf, title, html_body, labels=None, ancestor_id=None, page
             print(f"Updated page: {title} (id={page_id})")
             return page_id
         else:
-            page_id = conf.create_page(
+            created = conf.create_page(
                 space=SPACE,
                 title=title,
                 body=html_body,
                 parent_id=ancestor_id,
                 type='page',
                 representation='storage'
-            )["id"]
+            )
+            page_id = created["id"]
             if labels:
                 conf.set_page_labels(page_id, labels)
             print(f"Created page: {title} (id={page_id})")
             return page_id
+
+
 
 # --- Main ------------------------------------------------------------------
 
