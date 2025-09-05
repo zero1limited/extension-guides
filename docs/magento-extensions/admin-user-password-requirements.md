@@ -9,10 +9,10 @@ Purchase the extension from https://extensions.zero1.co.uk/pci-admin-user-requir
 
 
 Follow our standard installation guide using the following composer require module name
+
 ```php
 composer require zero1/admin-user-password-requirements
 ```
-
 
 
 ## Configuration
