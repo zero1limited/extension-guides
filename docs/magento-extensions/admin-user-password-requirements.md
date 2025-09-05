@@ -16,5 +16,3 @@ composer require zero1/admin-user-password-requirements
 
 
 ## Configuration
-
-
