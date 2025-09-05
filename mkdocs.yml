@@ -1,6 +1,5 @@
 site_name: ZERO-1 Magento Extension Guides
 plugins:
-  - awesome-nav
   - awesome-pages
 site_url: https://docs.zero1.co.uk/
 theme:
