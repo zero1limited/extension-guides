@@ -1,0 +1,35 @@
+name: Publish Markdown to Confluence
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - "docs/**/*.md"   # adjust to your directory
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install atlassian-python-api==3.* markdown==3.* pyyaml==6.*
+
+      - name: Publish Markdown files to Confluence
+        env:
+          CONFLUENCE_BASE_URL: ${{ secrets.CONFLUENCE_BASE_URL }}   # e.g. https://your-domain.atlassian.net/wiki
+          CONFLUENCE_USER_EMAIL: ${{ secrets.CONFLUENCE_USER_EMAIL }}
+          CONFLUENCE_API_TOKEN: ${{ secrets.CONFLUENCE_API_TOKEN }} # Atlassian API token
+          CONFLUENCE_SPACE_KEY: ${{ secrets.CONFLUENCE_SPACE_KEY }} # e.g. DOCS
+          CONFLUENCE_PARENT_ID: ${{ secrets.CONFLUENCE_PARENT_ID }} # optional: parent page ID
+          MD_GLOB: "docs/**/*.md"
+        run: |
+          python .github/scripts/publish_confluence.py
