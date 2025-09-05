@@ -8,10 +8,9 @@ Effortless compliance with PCI DSS v4.0.1 - SAQ-A 8.3.6, SAQ-A 8.3.7, SAQ-A 8.3.
 Purchase the extension from https://extensions.zero1.co.uk/pci-admin-user-requirements.html
 
 
+Follow our standard installation guide using the following composer require module name
 ```php
 composer require zero1/admin-user-password-requirements
-php bin/magento setup:upgrade
-
 ```
 
 
