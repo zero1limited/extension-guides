@@ -40,23 +40,7 @@ extra:
 copyright: |
   &copy; 2025 <a href="https://www.zero1.co.uk/"  target="_blank" rel="noopener">ZERO-1 Ltd.</a>
 
-nav:
-  - 'Magento 2 Extensions':
-    - 'Overview':  'magento-extensions/index.md'
-    - 'magento-extensions/admin-user-password-requirements.md'
-    - 'magento-extensions/aifieldgenerator.md'
-  - 'Point Of Sale for Magento':
-    - 'openpos/OpenPOS.md'
-    - 'Late Registration': 'openpos/open-pos-late-registration.md'
-    - 'Layaways': 'openpos/open-pos-layaways.md'
-    - 'Payments':
-      - 'mollie': 'openpos/payments/open-pos-mollie.md'
-      - 'Stripe': 'openpos/payments/pos-stripe-payment-link.md'
-    - 'Hardware':
-      - 'openpos/hardware/barcode-scanners.md'
-      - 'openpos/hardware/receipt-printers.md'
-  - 'Custom Development':
-      - 'Overview': 'custom-magento-development.md'
+
 
 not_in_nav: |
   /index.md
