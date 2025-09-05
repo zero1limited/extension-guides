@@ -1,11 +1,10 @@
 ---
-title: "AI Field Generator update....d"
-labels: ["docs", "engineering"]
+title: "AI Field Generator"
 xxxparent_id: "123456789"           # overrides default CONFLUENCE_PARENT_ID
-# xxxconfluence_page_id: "987654321"  # lock to a specific page for updates
+# confluence_page_id: "47382555"  # lock to a specific page for updates
 ---
 
-# AI Field Generators
+# AI Field Generator
 
 An AI Field Generator is a tool that automatically fills in fields on your website or system using artificial intelligence.
 
