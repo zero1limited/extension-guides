@@ -64,7 +64,9 @@ A **Layaway Service** allows customers to reserve products by making a deposit a
 
 ## 🔐 Policies & Compliance
 
-- **Clear Terms:** Provide customers with written layaway agreement.
-- **Refund Rules:** Define how deposits and payments are handled on cancellations.
-- **Data Privacy:** Protect customer data and payment records.
+- **Clear Terms:** Provide customers with written layaway agreement
+- **Refund Rules:** Define how deposits and payments are handled on cancellations
+- **Data Privacy:** Protect customer data and payment records
+
+
 
